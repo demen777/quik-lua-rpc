@@ -2,6 +2,11 @@ local scriptPath = getScriptPath()
 
 package.path = scriptPath .. '/?.lua;' .. package.path
 
+local log = require("log")
+log.outfile = "quik_lua_rpc.log"
+log.level = "debug"
+
+
 local string = string
 
 local zmq = require("lzmq")
@@ -147,13 +152,32 @@ local function create_rpc_poll_in_callback (socket, serde_protocol)
   return callback
 end
 
+local function dump(o)
+  if type(o) == 'table' then
+    local s = '{ '
+    for k,v in pairs(o) do
+      if type(k) ~= 'number' then k = '"'..k..'"' end
+      s = s .. '['..k..'] = ' .. dump(v) .. ','
+    end
+    return s .. '} '
+  else
+    return tostring(o)
+  end
+end
+
 local function publish (event_type, event_data)
 
   if not is_running then return end
-  
+
   local converted_event_data = event_data_converter.convert(event_type, event_data)
-  
+
   for _, publisher in pairs(publishers) do
+    if event_type ~= "OnParam" and event_type ~= "OnQuote" then
+      log.debug(event_type)
+      if converted_event_data ~= nil then
+        log.debug(dump(converted_event_data))
+      end
+    end
     publisher:publish(event_type, converted_event_data)
   end
 end
@@ -309,7 +333,8 @@ local function create_socket (endpoint)
     
     -- Как координировать PUB и SUB правильно (сложно): http://zguide.zeromq.org/lua:all#Node-Coordination
     -- Как не совсем правильно (просто): использовать sleep
-    utils.sleep(0.25) -- in seconds
+--    utils.sleep(0.25) -- in seconds
+    sleep(250)
     
     local next = next
     if not next(service.event_callbacks) then
