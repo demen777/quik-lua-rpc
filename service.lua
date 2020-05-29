@@ -2,9 +2,6 @@ local scriptPath = getScriptPath()
 
 package.path = scriptPath .. '/?.lua;' .. package.path
 
-local log = require("log")
-log.outfile = "quik_lua_rpc.log"
-log.level = "debug"
 
 
 local string = string
@@ -16,8 +13,12 @@ local config_parser = require("utils.config_parser")
 local event_data_converter = require("impl.event_data_converter")
 local procedure_wrappers = require("impl.procedure_wrappers")
 local utils = require("utils.utils")
+local log = require("utils.log")
 local json = require("utils.json")
 local uuid = require("utils.uuid")
+
+log.outfile = "quik_lua_rpc.log"
+log.level = "debug"
 
 local service = {}
 service._VERSION = "v2.0-alpha"
@@ -136,9 +137,11 @@ local function create_rpc_poll_in_callback (socket, serde_protocol)
     local response
     if ok then
       if res then response = res end
+      log.debug(utils.dump(response))
     else
       response = {}
       response.error = gen_error_obj(500, string.format("Ошибка при обработке входящего запроса: '%s'.", res))
+      log.error(utils.dump(response.error))
     end
     
     if response then
@@ -152,19 +155,6 @@ local function create_rpc_poll_in_callback (socket, serde_protocol)
   return callback
 end
 
-local function dump(o)
-  if type(o) == 'table' then
-    local s = '{ '
-    for k,v in pairs(o) do
-      if type(k) ~= 'number' then k = '"'..k..'"' end
-      s = s .. '['..k..'] = ' .. dump(v) .. ','
-    end
-    return s .. '} '
-  else
-    return tostring(o)
-  end
-end
-
 local function publish (event_type, event_data)
 
   if not is_running then return end
@@ -175,7 +165,7 @@ local function publish (event_type, event_data)
     if event_type ~= "OnParam" and event_type ~= "OnQuote" then
       log.debug(event_type)
       if converted_event_data ~= nil then
-        log.debug(dump(converted_event_data))
+        log.debug(utils.dump(converted_event_data))
       end
     end
     publisher:publish(event_type, converted_event_data)

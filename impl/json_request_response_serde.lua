@@ -4,6 +4,8 @@ local RequestResponseSerde = require("impl.request_response_serde")
 
 local json = require("utils.json")
 
+local utils = require("utils.utils")
+
 local JsonRequestResponseSerde = {}
 setmetatable(JsonRequestResponseSerde, {__index = RequestResponseSerde})
 
@@ -306,7 +308,7 @@ end
 
 -- sendTransaction
 result_encoders["sendTransaction"] = function (proc_result)
-  return {result = proc_result}
+  return {result = utils.Cp1251ToUtf8(proc_result)}
 end
 
 -- SetCell
