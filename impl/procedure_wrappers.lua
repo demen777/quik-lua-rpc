@@ -648,7 +648,7 @@ end
 module["sendTransaction"] = function (args) 
   -- if ok, returns an empty string
   -- if not ok, returns an error message
-  return requireNonNil(_G.sendTransaction(args.transaction))
+  return utils.Cp1251ToUtf8(requireNonNil(_G.sendTransaction(args.transaction)))
 end
 
 -- TODO: test
