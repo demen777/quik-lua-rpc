@@ -37,7 +37,13 @@ local function to_string_string_table (t)
   
   local result = {}
   for k, v in pairs(t) do
-    result[utils.Cp1251ToUtf8(tostring(k))] = utils.Cp1251ToUtf8(tostring(v))
+    local value
+    if type(v) == 'table' then
+      value = to_string_string_table(v)
+    else
+      value = utils.Cp1251ToUtf8(tostring(v))
+    end
+    result[utils.Cp1251ToUtf8(tostring(k))] = value
   end
   
   return result
@@ -567,7 +573,8 @@ module["datasource.SetUpdateCallback"] = function (args)
   end
   
   if watch_code ~= "" then
-    watch_code = "local props = {uuid = " .. ds_uuid ..", index = index} " .. watch_code .. "_G.OnDataSourceUpdate(props) " 
+    local data_object_init_code = "local props = {uuid = \"" .. ds_uuid .. "\", index = " .. index .. "} "
+    watch_code = data_object_init_code .. watch_code .. "_G.OnDataSourceUpdate(props) " 
     actual_callback_code = actual_callback_code .. watch_code
   end
   
