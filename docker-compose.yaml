@@ -5,4 +5,4 @@ services:
     image: quik-lua-rpc:latest
     container_name: quik-lua-rpc
     volumes:
-      - "./built:/mnt/built:rw"
+      - "/c/Users/demen/built:/mnt/built:rw"

@@ -43,3 +43,5 @@ luac.out
 *.iws
 *.iml
 *.ipr
+
+/built/quik_lua_rpc.tar.xz
