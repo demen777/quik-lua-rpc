@@ -58,6 +58,7 @@ end
 function ProtobufEventDataSerializer:OnAllTrade (alltrade)
   
   alltrade.datetime = to_pb_obj(qlua_pb_types.qlua_structures.DateTimeEntry, alltrade.datetime)
+  alltrade.uid = tostring(uid)
   
   local flags = alltrade.flags
   if flags then
@@ -74,6 +75,7 @@ end
 function ProtobufEventDataSerializer:OnTrade (trade)
   
   trade.datetime = to_pb_obj(qlua_pb_types.qlua_structures.DateTimeEntry, trade.datetime)
+  trade.uid = tostring(trade.uid)
   
   if trade.canceled_datetime then
     trade.canceled_datetime = to_pb_obj(qlua_pb_types.qlua_structures.DateTimeEntry, trade.canceled_datetime)
